@@ -384,6 +384,10 @@
                 });
             }).catch(() => {});
 
+        window.addEventListener('load', () => {
+            enterScreen.style.display = 'flex';
+        });
+
         enterScreen.onclick = () => {
             audio.play();
             enterScreen.style.display = 'none';
