@@ -318,7 +318,7 @@
         </div>
     </div>
 
-    <audio id="audio-file" loop autoplay>
+    <audio id="audio-file" loop preload="auto">
         <source src="spongebob-sad-song.mp3" type="audio/mpeg">
     </audio>
 
@@ -349,7 +349,25 @@
                 });
             }).catch(() => {});
 
-        function handleAudio() {
+        function tryPlay() {
+            audio.play().then(() => {
+                active = true;
+                btn.innerText = "MUTE AUDIO";
+            }).catch(() => {
+                active = false;
+                btn.innerText = "ENABLE AUDIO";
+            });
+        }
+
+        window.addEventListener('load', tryPlay);
+        ['click', 'touchstart', 'mousemove', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, () => {
+                if (audio.paused && btn.innerText !== "ENABLE AUDIO") tryPlay();
+            }, { once: true });
+        });
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (!active) {
                 audio.play();
                 btn.innerText = "MUTE AUDIO";
@@ -359,23 +377,6 @@
                 btn.innerText = "ENABLE AUDIO";
                 active = false;
             }
-        }
-
-        const forceStart = () => {
-            audio.play().catch(() => {
-                active = false;
-                btn.innerText = "ENABLE AUDIO";
-            });
-        };
-
-        window.onload = forceStart;
-        document.body.addEventListener('click', () => {
-            if (audio.paused && active) forceStart();
-        }, { once: true });
-
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            handleAudio();
         });
 
         proofBtn.onclick = () => {
