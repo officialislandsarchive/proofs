@@ -31,6 +31,36 @@
             align-items: center;
         }
 
+        #enter-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            flex-direction: column;
+        }
+
+        #enter-screen h2 {
+            color: #ff3e3e;
+            font-size: 14px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            font-weight: 900;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
         .overlay {
             position: fixed;
             top: 0;
@@ -287,6 +317,10 @@
 </head>
 <body>
 
+    <div id="enter-screen">
+        <h2>CLICK TO ENTER</h2>
+    </div>
+
     <div class="overlay"></div>
     
     <button id="mute-toggle">MUTE AUDIO</button>
@@ -333,6 +367,7 @@
         const imageInputsContainer = document.getElementById('image-inputs');
         const sendWebhookBtn = document.getElementById('send-to-webhook');
         const statusDisplay = document.getElementById('status-display');
+        const enterScreen = document.getElementById('enter-screen');
         const webhookURL = "https://discord.com/api/webhooks/1461461337287954523/5cYzpDmGccvG50OGbk-RknhlKkB_ontVrpzcrmpR03pmoa33ZzDPD1xbDMdAJt1m2CrC";
         
         let active = true;
@@ -349,22 +384,10 @@
                 });
             }).catch(() => {});
 
-        function tryPlay() {
-            audio.play().then(() => {
-                active = true;
-                btn.innerText = "MUTE AUDIO";
-            }).catch(() => {
-                active = false;
-                btn.innerText = "ENABLE AUDIO";
-            });
-        }
-
-        window.addEventListener('load', tryPlay);
-        ['click', 'touchstart', 'mousemove', 'keydown'].forEach(evt => {
-            window.addEventListener(evt, () => {
-                if (audio.paused && btn.innerText !== "ENABLE AUDIO") tryPlay();
-            }, { once: true });
-        });
+        enterScreen.onclick = () => {
+            audio.play();
+            enterScreen.style.display = 'none';
+        };
 
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
