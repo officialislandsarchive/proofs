@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exposing Enthusiast</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 20%, #050505 100%);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #mute-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 62, 62, 0.1);
+            border: 1px solid #ff3e3e;
+            color: #ff3e3e;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.2s ease-in-out;
+        }
+
+        #mute-toggle:hover {
+            background: #ff3e3e;
+            color: #000;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            z-index: 20;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            letter-spacing: -1px;
+            color: #ff3e3e;
+            margin-bottom: 15px;
+            font-weight: 900;
+        }
+
+        .desc {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .slider-window {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            z-index: 5;
+            padding: 30px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .slider-track {
+            display: flex;
+            width: max-content;
+            animation: scroll 25s linear infinite;
+        }
+
+        .slide {
+            flex-shrink: 0;
+            width: 450px;
+            margin: 0 15px;
+            filter: none;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #000;
+        }
+
+        .slide:hover {
+            border-color: #ff3e3e;
+            transform: scale(1.03);
+            z-index: 50;
+        }
+
+        .slide img {
+            width: 100%;
+            display: block;
+        }
+
+        #submit-proof-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #ff3e3e;
+            color: #000;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 10px 20px rgba(255, 62, 62, 0.2);
+        }
+
+        #modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            background: #0a0a0a;
+            border: 1px solid #ff3e3e;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 8px;
+        }
+
+        .modal h2 {
+            color: #ff3e3e;
+            margin-bottom: 20px;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+
+        .modal textarea {
+            width: 100%;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-family: inherit;
+            height: 100px;
+            resize: none;
+        }
+
+        .image-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .image-row input {
+            flex: 1;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .remove-img-btn {
+            background: rgba(255, 62, 62, 0.1);
+            border: 1px solid #ff3e3e;
+            color: #ff3e3e;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .remove-img-btn:hover {
+            background: #ff3e3e;
+            color: #000;
+        }
+
+        .modal button {
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        .add-img-btn {
+            background: transparent;
+            border: 1px dashed #444;
+            color: #888;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .add-img-btn:hover {
+            border-color: #ff3e3e;
+            color: #ff3e3e;
+        }
+
+        .submit-final-btn {
+            background: #ff3e3e;
+            color: #000;
+            border: none;
+            width: 100%;
+            padding: 15px;
+        }
+
+        .status-msg {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            min-height: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .close-modal {
+            color: #555;
+            float: right;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @media (max-width: 600px) {
+            .slide { width: 300px; }
+            h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+    
+    <button id="mute-toggle">ENABLE AUDIO</button>
+
+    <div class="header">
+        <h1>Enthusiast the scammer (893876229000802344)</h1>
+        <p class="desc">Enthusiast is a scammer who took 60K robux from Moon for accounts, then wiped them immediately. He even admitted it in the logs, saying "i ddint say i wasn't gonna wipe him". He's a joke trying to ruin the Islands economy don't trade with him or waste your time talking to him.</p>
+    </div>
+
+    <div class="slider-window">
+        <div class="slider-track" id="slider"></div>
+    </div>
+
+    <button id="submit-proof-btn">Submit More Proof</button>
+
+    <div id="modal-overlay">
+        <div class="modal">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <h2>Submit More New Proof</h2>
+            <textarea id="proof-text" placeholder="Explain what happened..."></textarea>
+            <div id="image-inputs">
+                <div class="image-row">
+                    <input type="text" class="img-url" placeholder="Image URL (Direct link)">
+                </div>
+            </div>
+            <button class="add-img-btn" id="add-image-field">+ Add Another Image URL</button>
+            <div class="status-msg" id="status-display"></div>
+            <button class="submit-final-btn" id="send-to-webhook">Send Proof</button>
+        </div>
+    </div>
+
+    <audio id="audio-file" loop>
+        <source src="spongebob-sad-song.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const slider = document.getElementById('slider');
+        const audio = document.getElementById('audio-file');
+        const btn = document.getElementById('mute-toggle');
+        const proofBtn = document.getElementById('submit-proof-btn');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const closeModal = document.getElementById('close-modal');
+        const addImageField = document.getElementById('add-image-field');
+        const imageInputsContainer = document.getElementById('image-inputs');
+        const sendWebhookBtn = document.getElementById('send-to-webhook');
+        const statusDisplay = document.getElementById('status-display');
+        const webhookURL = "https://discord.com/api/webhooks/1461461337287954523/5cYzpDmGccvG50OGbk-RknhlKkB_ontVrpzcrmpR03pmoa33ZzDPD1xbDMdAJt1m2CrC";
+        
+        let active = false;
+
+        fetch('images.json')
+            .then(res => res.json())
+            .then(data => {
+                const items = [...data, ...data, ...data];
+                items.forEach(url => {
+                    const div = document.createElement('div');
+                    div.className = 'slide';
+                    div.innerHTML = `<img src="${url}">`;
+                    slider.appendChild(div);
+                });
+            }).catch(() => {});
+
+        function handleAudio() {
+            if (!active) {
+                audio.play();
+                btn.innerText = "MUTE AUDIO";
+                active = true;
+            } else {
+                audio.pause();
+                btn.innerText = "ENABLE AUDIO";
+                active = false;
+            }
+        }
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleAudio();
+        });
+
+        document.body.addEventListener('click', () => {
+            if (!active) handleAudio();
+        }, { once: true });
+
+        proofBtn.onclick = () => {
+            statusDisplay.innerText = "";
+            modalOverlay.style.display = 'flex';
+        };
+        closeModal.onclick = () => modalOverlay.style.display = 'none';
+        window.onclick = (e) => { if (e.target == modalOverlay) modalOverlay.style.display = 'none'; };
+
+        addImageField.onclick = () => {
+            const row = document.createElement('div');
+            row.className = 'image-row';
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'img-url';
+            input.placeholder = 'Image URL (Direct link)';
+            const removeBtn = document.createElement('div');
+            removeBtn.className = 'remove-img-btn';
+            removeBtn.innerHTML = '&minus;';
+            removeBtn.onclick = () => row.remove();
+            row.appendChild(input);
+            row.appendChild(removeBtn);
+            imageInputsContainer.appendChild(row);
+        };
+
+        sendWebhookBtn.onclick = async () => {
+            const textContent = document.getElementById('proof-text').value;
+            const imageUrls = Array.from(document.querySelectorAll('.img-url'))
+                                  .map(i => i.value.trim())
+                                  .filter(v => v !== "");
+
+            if (!textContent && imageUrls.length === 0) {
+                statusDisplay.style.color = "#ff3e3e";
+                statusDisplay.innerText = "Please provide some proof first.";
+                return;
+            }
+
+            sendWebhookBtn.disabled = true;
+            sendWebhookBtn.innerText = "SENDING...";
+            statusDisplay.innerText = "";
+
+            const chunks = [];
+            for (let i = 0; i < imageUrls.length; i += 10) {
+                chunks.push(imageUrls.slice(i, i + 10));
+            }
+
+            try {
+                if (chunks.length === 0) {
+                    await fetch(webhookURL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: `**New Proof Submitted:**\n${textContent}` })
+                    });
+                } else {
+                    for (let i = 0; i < chunks.length; i++) {
+                        const payload = {
+                            embeds: chunks[i].map(url => ({ image: { url: url } }))
+                        };
+                        if (i === 0) payload.content = `**New Proof Submitted:**\n${textContent}`;
+                        await fetch(webhookURL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                    }
+                }
+                statusDisplay.style.color = "#00ff88";
+                statusDisplay.innerText = "Proof sent successfully!";
+                setTimeout(() => { modalOverlay.style.display = 'none'; }, 2000);
+            } catch (err) {
+                statusDisplay.style.color = "#ff3e3e";
+                statusDisplay.innerText = "Error sending proof.";
+            } finally {
+                sendWebhookBtn.disabled = false;
+                sendWebhookBtn.innerText = "Send Proof";
+            }
+        };
+    </script>
+</body>
+</html>
