@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exposing Enthusiast</title>
+    
+    <meta property="og:title" content="Enthusiast the scammer (893876229000802344)">
+    <meta property="og:description" content="Enthusiast is a scammer who took 60K robux from Moon for accounts. Proof inside. Don't trade with him.">
+    <meta property="og:image" content="https://r2.e-z.host/21960241-161d-4034-8742-5369c02509ec/08o8x12t.png">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#ff3e3e">
+    <meta name="twitter:card" content="summary_large_image">
+
     <style>
         * {
             box-sizing: border-box;
@@ -281,7 +289,7 @@
 
     <div class="overlay"></div>
     
-    <button id="mute-toggle">ENABLE AUDIO</button>
+    <button id="mute-toggle">MUTE AUDIO</button>
 
     <div class="header">
         <h1>Enthusiast the scammer (893876229000802344)</h1>
@@ -310,7 +318,7 @@
         </div>
     </div>
 
-    <audio id="audio-file" loop>
+    <audio id="audio-file" loop autoplay>
         <source src="spongebob-sad-song.mp3" type="audio/mpeg">
     </audio>
 
@@ -327,7 +335,7 @@
         const statusDisplay = document.getElementById('status-display');
         const webhookURL = "https://discord.com/api/webhooks/1461461337287954523/5cYzpDmGccvG50OGbk-RknhlKkB_ontVrpzcrmpR03pmoa33ZzDPD1xbDMdAJt1m2CrC";
         
-        let active = false;
+        let active = true;
 
         fetch('images.json')
             .then(res => res.json())
@@ -353,14 +361,22 @@
             }
         }
 
+        const forceStart = () => {
+            audio.play().catch(() => {
+                active = false;
+                btn.innerText = "ENABLE AUDIO";
+            });
+        };
+
+        window.onload = forceStart;
+        document.body.addEventListener('click', () => {
+            if (audio.paused && active) forceStart();
+        }, { once: true });
+
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             handleAudio();
         });
-
-        document.body.addEventListener('click', () => {
-            if (!active) handleAudio();
-        }, { once: true });
 
         proofBtn.onclick = () => {
             statusDisplay.innerText = "";
